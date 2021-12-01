@@ -1,0 +1,46 @@
+version: "3.7"
+
+services:
+  element:
+    image: vectorim/element-web
+    ports:
+      - 8081:80
+    volumes:
+      - ./config.json:/app/config.json:ro
+
+  element2:
+    image: vectorim/element-web
+    ports:
+      - 8082:80
+    volumes:
+      - ./config.json:/app/config.json:ro
+
+  postgres:
+    image: postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  postgres:
